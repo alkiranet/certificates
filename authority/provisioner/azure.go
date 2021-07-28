@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/smallstep/certificates/errs"
 	"go.step.sm/crypto/jose"
@@ -123,7 +124,11 @@ func (p *Azure) GetTokenID(token string) (string, error) {
 
 	// If TOFU is disabled create return the token kid
 	if p.DisableTrustOnFirstUse {
-		return claims.ID, nil
+		uniqueID, err := uuid.NewRandom()
+		if err != nil {
+			return "", err
+		}
+		return uniqueID.String(), nil
 	}
 
 	sum := sha256.Sum256([]byte(claims.XMSMirID))
